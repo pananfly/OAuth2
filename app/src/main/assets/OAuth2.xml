@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Platform>
+    <Example
+        Id="0"
+        AppKey="YOUR APP KEY"
+        AppSecret="YOUR APP SECRET"
+        RedirectUrl="http://fanyi.baidu.com"
+    />
+</Platform>
