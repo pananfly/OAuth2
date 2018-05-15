@@ -1,11 +1,16 @@
 OAuth2 implement by WebView for Android
 =======================================
 
+Gradle dependency:
+```
+implementation 'com.pananfly:oauth2:1.0'
+```
+
 ### 1.Add OAuth2.xml file in your asserts dir with config your platforms
 
 ### 2.Init first before use , with below codes
 ```
-    OAuth2.init(context);
+OAuth2.init(context);
 ```
 
 ### 3.Implement your own platform
@@ -42,27 +47,27 @@ public class Example extends Platform {
 
 ### 5.Start authorize
 ```
-    Platform platform = new Example();
-    platform.setActionListener(mActionListener);
-    platform.autorize();
+Platform platform = new Example();
+platform.setActionListener(mActionListener);
+platform.autorize();
 ```
 ```
-    private PlatformActionListener mActionListener = new PlatformActionListener() {
-        @Override
-        public void onError(Platform platform, OAuth2Exception exception) {
+private PlatformActionListener mActionListener = new PlatformActionListener() {
+    @Override
+    public void onError(Platform platform, OAuth2Exception exception) {
 
-        }
+    }
 
-        @Override
-        public void onComplete(Platform platform) {
+    @Override
+    public void onComplete(Platform platform) {
 
-        }
+    }
 
-        @Override
-        public void onCancel(Platform platform) {
+    @Override
+    public void onCancel(Platform platform) {
 
-        }
-    };
+    }
+};
 ```
 
 ### 6.TO-DO

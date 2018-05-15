@@ -32,3 +32,21 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
+
+apply plugin: 'com.novoda.bintray-release'
+//项目主页
+def siteUrl = 'https://github.com/pananfly/OAuth2'
+publish{
+    repoName = 'OpenRepository'
+    userOrg = 'panfly123'
+    groupId = 'com.pananfly'
+    artifactId = 'oauth2'
+    publishVersion = '1.0'
+    desc = 'OAuth2 implement by webview for Android'
+    website = siteUrl
+}
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}
