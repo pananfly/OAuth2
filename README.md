@@ -1,7 +1,7 @@
 OAuth2 implement by WebView for Android
 =======================================
 
-Gradle dependency:
+### Gradle
 ```
 implementation 'com.pananfly:oauth2:1.0'
 ```
