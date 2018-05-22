@@ -20,7 +20,10 @@
             </intent-filter>
         </activity>
         <!--statement OAuth2UI-->
-        <activity android:name="com.pananfly.oauth2.OAuth2UI"/>
+        <activity android:name="com.pananfly.oauth2.OAuth2UI">
+            <!--option for remove cookie-->
+            <meta-data android:name="com.pananfly.oauth2.REMOVE_COOKIE" android:value="@bool/remove_cookies"/>
+        </activity>
     </application>
 
 </manifest>

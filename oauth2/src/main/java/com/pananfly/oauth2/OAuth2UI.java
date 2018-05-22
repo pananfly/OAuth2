@@ -1,8 +1,8 @@
 package com.pananfly.oauth2;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
@@ -13,6 +13,8 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -20,6 +22,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import com.pananfly.oauth2.exception.OAuth2Exception;
 
 /**
  * OAuth2 Webview authorize
@@ -29,7 +33,7 @@ public class OAuth2UI extends AppCompatActivity {
 
     public static final String OAUTH2_URL = "oauth2_url";
     public static final String OAUTH2_REDIRECT_URL = "oauth2_redirect_url";
-    public static final String OAUTH2_RESULT = "oauth2_result";
+    public static final String OAUTH2_METADATA_NAME = "com.pananfly.oauth2.REMOVE_COOKIE";
     private LinearLayout rootView;
     private WebView mWebView;
     private String url;
@@ -37,15 +41,25 @@ public class OAuth2UI extends AppCompatActivity {
     private volatile boolean isAuthorized = false;
 
     @Override
-    @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         url = getIntent().getStringExtra(OAUTH2_URL);
         if(url == null){
-            setResult(Activity.RESULT_CANCELED , new Intent().putExtra(OAUTH2_RESULT , "{}"));
+            //error
+            if (OAuth2.getOAuth2Listener() != null) {
+                OAuth2.getOAuth2Listener().onError(new OAuth2Exception("Url is empty."));
+            }
             finish();
+            return;
+        }
+        //get activity meta-data value
+        boolean isRemoveCookie = getBooleanMetaData(OAUTH2_METADATA_NAME , false);
+        if(isRemoveCookie) {
+            removeCookie(this);
         }
         redirectUrl = getIntent().getStringExtra(OAUTH2_REDIRECT_URL);
+
+        //init view
         rootView = new LinearLayout(this );
         rootView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
@@ -63,6 +77,9 @@ public class OAuth2UI extends AppCompatActivity {
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(true);
         settings.setDefaultTextEncodingName("UTF-8");
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+        //display adaptation
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -85,6 +102,7 @@ public class OAuth2UI extends AppCompatActivity {
         } else {
             settings.setLoadsImagesAutomatically(false);
         }
+
         mWebView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
@@ -92,8 +110,10 @@ public class OAuth2UI extends AppCompatActivity {
                 view.requestFocus();
             }
         });
+
         rootView.addView(mWebView);
         setContentView(rootView);
+
         mWebView.loadUrl(url);
     }
 
@@ -125,11 +145,11 @@ public class OAuth2UI extends AppCompatActivity {
 
     private class OAuth2WebViewClient extends WebViewClient {
 
-//        @Override
-//        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-//            view.loadUrl(url);
-//            return true;
-//        }
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -155,5 +175,36 @@ public class OAuth2UI extends AppCompatActivity {
             super.onPageFinished(view, url);
             view.getSettings().setLoadsImagesAutomatically(true);
         }
+    }
+
+    /**
+     * Remove cookie
+     *
+     * @param context
+     */
+    private void removeCookie(Context context) {
+        CookieSyncManager.createInstance(context);
+        CookieSyncManager.getInstance().startSync();
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        cookieManager.removeSessionCookie();
+    }
+
+    /**
+     * Get activity boolean meta-data
+     * @return
+     */
+    private boolean getBooleanMetaData(String name , boolean defaultValue){
+        try{
+            ActivityInfo activityInfo = getPackageManager().getActivityInfo(getComponentName(), PackageManager.GET_META_DATA);
+            return activityInfo.metaData.getBoolean(name , defaultValue);
+        }catch (PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return defaultValue;
     }
 }

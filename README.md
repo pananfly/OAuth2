@@ -3,7 +3,7 @@ OAuth2 implement by WebView for Android
 
 ### Gradle
 ```
-implementation 'com.pananfly:oauth2:1.0'
+implementation 'com.pananfly:oauth2:1.0.1'
 ```
 
 ### 1.Add OAuth2.xml file in your asserts dir with config your platforms
@@ -44,6 +44,13 @@ public class Example extends Platform {
 ```
 
 ### 4.Register OAuth2UI activity and apply internet permission in AndroidManifest.xml
+```
+<!--statement OAuth2UI-->
+<activity android:name="com.pananfly.oauth2.OAuth2UI">
+    <!--option for remove cookie-->
+    <meta-data android:name="com.pananfly.oauth2.REMOVE_COOKIE" android:value="@bool/remove_cookies"/>
+</activity>
+```
 
 ### 5.Start authorize
 ```
@@ -71,7 +78,7 @@ private PlatformActionListener mActionListener = new PlatformActionListener() {
 ```
 
 ### 6.TO-DO
-* Fix webview cookies of auto launch(by remove cookies?).
+* ~~Fix webview cookies of auto launch(by remove cookies?).~~
 * Optimize callback between Platform and OAuth2UI.
 
 License
